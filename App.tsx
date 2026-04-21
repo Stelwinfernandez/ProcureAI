@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Bot, 
-  Factory, 
-  Truck, 
-  Zap, 
-  BarChart3, 
-  Clock, 
-  ShieldCheck, 
-  Globe, 
-  ChevronRight, 
-  Cpu, 
-  Layers, 
+import {
+  Bot,
+  Factory,
+  Truck,
+  Zap,
+  BarChart3,
+  Clock,
+  ShieldCheck,
+  Globe,
+  ChevronRight,
+  Cpu,
+  Layers,
   Search,
   Mail,
   Menu,
@@ -20,7 +20,12 @@ import {
   AlertCircle,
   TrendingUp,
   MapPin,
-  Calendar
+  Calendar,
+  Camera,
+  ScanLine,
+  Sparkles,
+  Send,
+  Package
 } from 'lucide-react';
 import { Section } from './components/Section';
 import { Button } from './components/Button';
@@ -76,13 +81,19 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-1">
-            {['Problem', 'Solution', 'Manufacturers', 'Suppliers'].map((item) => (
-              <button 
-                key={item}
-                onClick={() => scrollTo(item.toLowerCase())}
+            {[
+              { label: 'Problem', id: 'problem' },
+              { label: 'Snap & Source', id: 'snap-source' },
+              { label: 'Solution', id: 'solution' },
+              { label: 'Manufacturers', id: 'manufacturers' },
+              { label: 'Suppliers', id: 'suppliers' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollTo(item.id)}
                 className="px-4 py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors hover:bg-white/5 rounded-lg"
               >
-                {item}
+                {item.label}
               </button>
             ))}
           </div>
@@ -106,13 +117,20 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden glass-panel border-b border-white/10 absolute w-full">
           <div className="px-4 pt-4 pb-6 space-y-2">
-             {['Problem', 'Solution', 'Manufacturers', 'Suppliers', 'Roadmap'].map((item) => (
-              <button 
-                key={item}
-                onClick={() => scrollTo(item.toLowerCase())}
+             {[
+               { label: 'Problem', id: 'problem' },
+               { label: 'Snap & Source', id: 'snap-source' },
+               { label: 'Solution', id: 'solution' },
+               { label: 'Manufacturers', id: 'manufacturers' },
+               { label: 'Suppliers', id: 'suppliers' },
+               { label: 'Roadmap', id: 'roadmap' },
+             ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollTo(item.id)}
                 className="block w-full text-left px-4 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg"
               >
-                {item}
+                {item.label}
               </button>
             ))}
             <div className="pt-4 mt-4 border-t border-white/10">
@@ -289,12 +307,12 @@ const Hero = () => {
         </div>
 
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
-          The Future of <br className="hidden md:block"/>
-          <span className="text-gradient-primary">MRO Procurement</span>
+          Snap a part.<br className="hidden md:block"/>
+          <span className="text-gradient-primary">Source it instantly.</span>
         </h1>
-        
+
         <p className="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-          The first AI-powered platform connecting manufacturers with suppliers for instant RFQs, real-time comparison, and zero downtime.
+          The two-sided MRO procurement platform where manufacturers photograph any part, and AI fires instant RFQs to industrial suppliers like Fastenal, W&uuml;rth, and Imperial Dade &mdash; with quotes returned in minutes.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
@@ -379,6 +397,174 @@ const Problem = () => (
   </Section>
 );
 
+const SnapAndSource = () => {
+  const suppliers = [
+    { name: 'Fastenal', tag: 'Fasteners & MRO' },
+    { name: 'Würth', tag: 'Industrial Supply' },
+    { name: 'Imperial Dade', tag: 'Facility & Packaging' },
+    { name: 'Grainger', tag: 'Broadline MRO' },
+    { name: 'MSC Industrial', tag: 'Metalworking' },
+    { name: 'Motion Industries', tag: 'Bearings & Power' },
+  ];
+
+  const steps = [
+    {
+      n: '01',
+      icon: Camera,
+      title: 'Snap',
+      desc: 'Point your phone at any broken, worn, or unlabeled part on the plant floor. One photo is all it takes.',
+      accent: 'blue',
+    },
+    {
+      n: '02',
+      icon: ScanLine,
+      title: 'Identify',
+      desc: 'Our vision model detects the part type, dimensions, and likely SKUs — matched against supplier catalogs in real time.',
+      accent: 'cyan',
+    },
+    {
+      n: '03',
+      icon: Send,
+      title: 'Instant RFQ',
+      desc: 'We broadcast the request to the best-fit industrial suppliers simultaneously. No emails. No phone tag.',
+      accent: 'blue',
+    },
+    {
+      n: '04',
+      icon: Sparkles,
+      title: 'Quotes in Minutes',
+      desc: 'Ranked quotes with price, lead time, and stock availability land in your dashboard ready for one-click PO.',
+      accent: 'cyan',
+    },
+  ];
+
+  return (
+    <Section id="snap-source" bg="gradient">
+      <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="inline-flex items-center space-x-2 text-cyan-400 font-semibold mb-4 tracking-wide uppercase text-sm">
+          <Camera size={16} />
+          <span>Flagship Feature</span>
+        </div>
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+          Snap &amp; Source
+          <span className="block text-gradient-primary text-2xl md:text-3xl mt-3 font-semibold">Part to quote in under five minutes.</span>
+        </h2>
+        <p className="text-slate-400 text-lg">
+          A maintenance tech on the floor snaps a photo. Procurement never lifts a finger. The right suppliers respond with real quotes before the next shift change.
+        </p>
+      </div>
+
+      {/* Flow mockup */}
+      <div className="grid lg:grid-cols-2 gap-10 items-center mb-20">
+        {/* Phone mockup */}
+        <div className="relative mx-auto">
+          <div className="absolute -inset-6 bg-gradient-to-br from-blue-600/30 via-cyan-500/20 to-transparent rounded-[3rem] blur-2xl"></div>
+          <div className="relative w-[300px] h-[600px] bg-[#0b1120] border-[10px] border-slate-800 rounded-[3rem] shadow-2xl overflow-hidden ring-1 ring-white/10">
+            {/* Notch */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-slate-900 rounded-b-2xl z-10"></div>
+
+            {/* Camera viewfinder */}
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950">
+              {/* Fake machine background */}
+              <div className="absolute inset-0 opacity-60" style={{
+                backgroundImage: 'repeating-linear-gradient(45deg, rgba(59,130,246,0.06) 0px, rgba(59,130,246,0.06) 2px, transparent 2px, transparent 10px)',
+              }}></div>
+
+              {/* Part silhouette */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 border-4 border-slate-600 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-slate-950 border-2 border-slate-700"></div>
+              </div>
+
+              {/* Scan frame */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 border-2 border-cyan-400/80 rounded-2xl shadow-[0_0_40px_rgba(34,211,238,0.4)]">
+                <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-xl"></div>
+                <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-xl"></div>
+                <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-xl"></div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-cyan-400 rounded-br-xl"></div>
+                <div className="absolute left-0 right-0 top-1/2 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
+              </div>
+
+              {/* Detection badge */}
+              <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur px-4 py-2 rounded-full border border-cyan-500/40 text-xs text-cyan-300 font-mono flex items-center space-x-2">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span>DETECTED &middot; SKF 6205-2RS BEARING</span>
+              </div>
+
+              {/* Bottom quote ticker */}
+              <div className="absolute bottom-10 left-4 right-4 bg-slate-900/90 backdrop-blur border border-slate-700 rounded-xl p-3 shadow-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Live Quotes</span>
+                  <span className="text-[10px] text-green-400 font-mono">3 in 2m</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-200 font-medium">Fastenal</span>
+                    <span className="text-green-400 font-mono">$18.40 &middot; 1d</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-200 font-medium">W&uuml;rth</span>
+                    <span className="text-slate-300 font-mono">$19.10 &middot; 2d</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-200 font-medium">Motion Ind.</span>
+                    <span className="text-slate-300 font-mono">$21.00 &middot; 1d</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shutter */}
+              <div className="absolute bottom-0 left-0 right-0 h-10 bg-slate-950/80 border-t border-slate-800 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-full bg-white border-2 border-slate-400 shadow-lg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="space-y-5">
+          {steps.map((step) => (
+            <div key={step.n} className="glass-panel p-6 rounded-xl border border-white/5 hover:border-blue-500/30 transition-all duration-300 flex items-start space-x-5">
+              <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${step.accent === 'blue' ? 'bg-blue-600/10 text-blue-400' : 'bg-cyan-600/10 text-cyan-400'}`}>
+                <step.icon size={22} />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center space-x-3 mb-1">
+                  <span className={`text-xs font-mono ${step.accent === 'blue' ? 'text-blue-400' : 'text-cyan-400'}`}>{step.n}</span>
+                  <h3 className="text-lg font-semibold text-white">{step.title}</h3>
+                </div>
+                <p className="text-slate-400 text-sm leading-relaxed">{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Supplier network strip */}
+      <div className="relative">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center space-x-2 text-slate-400 text-xs font-semibold uppercase tracking-widest">
+            <Package size={14} />
+            <span>Connected Supplier Network</span>
+          </div>
+        </div>
+        <div className="glass-panel rounded-2xl border border-white/5 p-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {suppliers.map((s) => (
+              <div key={s.name} className="group bg-slate-900/40 border border-slate-800 rounded-lg p-4 text-center hover:border-blue-500/40 hover:bg-slate-900/80 transition-all duration-300">
+                <div className="text-white font-semibold text-sm mb-1 group-hover:text-blue-300 transition-colors">{s.name}</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider">{s.tag}</div>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-xs text-slate-500 mt-6">
+            Plus 200+ regional distributors across bearings, hydraulics, electrical, safety, and sanitation.
+          </p>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
 const Solution = () => (
   <Section id="solution" bg="gradient">
     <div className="text-center max-w-3xl mx-auto mb-20">
@@ -394,10 +580,10 @@ const Solution = () => (
 
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[
-        { 
-          icon: Zap, 
-          title: "Instant RFQ Broadcast", 
-          desc: "Create one request. We intelligently route it to the best-fit suppliers in seconds." 
+        {
+          icon: Camera,
+          title: "Snap & Source",
+          desc: "Photograph any part on the plant floor. AI identifies it and fires an instant RFQ to the right industrial suppliers."
         },
         { 
           icon: Bot, 
@@ -448,7 +634,7 @@ const AudienceSplit = () => (
         </div>
         <h2 className="text-3xl font-bold text-white mb-6">For Manufacturers</h2>
         <p className="text-slate-400 mb-8 leading-relaxed">
-          Eliminate downtime and stop overpaying for parts. Centralize your MRO spending and get the parts you need, when you need them.
+          Your maintenance team snaps a photo, AI handles identification and sourcing. Eliminate downtime, stop overpaying, and centralize every MRO purchase across every facility.
         </p>
         <ul className="space-y-4 mb-8">
           {[
@@ -482,7 +668,7 @@ const AudienceSplit = () => (
         <span className="text-cyan-500 font-medium text-sm mb-6 block uppercase tracking-wider">For Suppliers & Distributors</span>
         
         <p className="text-slate-400 mb-8 leading-relaxed">
-          Stop cold calling. Get highly qualified, ready-to-buy RFQs delivered straight to your dashboard. Quote faster, win more.
+          Stop cold calling. Pre-qualified, photo-verified RFQs land straight in your dashboard from manufacturers ready to purchase. Quote faster, win more &mdash; sit alongside Fastenal, W&uuml;rth, and Imperial Dade in the response queue.
         </p>
         <ul className="space-y-4 mb-8">
           {[
@@ -785,6 +971,7 @@ const App: React.FC = () => {
       <Navbar />
       <Hero />
       <Problem />
+      <SnapAndSource />
       <Solution />
       <AudienceSplit />
       <RegionalPilot />

@@ -4,9 +4,56 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Procure AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      html { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif; }
+      .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+      .glass-card { background: rgba(30, 41, 59, 0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+      .text-gradient-primary {
+        background: linear-gradient(90deg, #2563EB 0%, #22D3EE 50%, #2563EB 100%);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: gradient-shift 6s ease infinite;
+      }
+      @keyframes gradient-shift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+      }
+      .grid-bg {
+        background-image:
+          linear-gradient(rgba(59, 130, 246, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(59, 130, 246, 0.07) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+        -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+      }
+      .bg-hero-glow {
+        background:
+          radial-gradient(600px circle at 20% 20%, rgba(37, 99, 235, 0.35), transparent 60%),
+          radial-gradient(700px circle at 80% 30%, rgba(6, 182, 212, 0.25), transparent 60%),
+          radial-gradient(500px circle at 50% 80%, rgba(37, 99, 235, 0.18), transparent 60%);
+      }
+      .perspective-1000 { perspective: 1000px; }
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+      }
+      .animate-float { animation: float 4s ease-in-out infinite; }
+      @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up { animation: fade-in-up 0.8s ease-out both; }
+      body { background: #020617; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
-   <script type="module" src="/src/main.tsx"></script>
+   <script type="module" src="/index.tsx"></script>
   </body>
 </html>

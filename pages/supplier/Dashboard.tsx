@@ -1,62 +1,54 @@
 import React from 'react';
-import { Inbox, CheckCircle2, DollarSign, Target, Factory, ArrowRight } from 'lucide-react';
+import { Inbox, CheckCircle2, DollarSign, Target, Factory, ArrowRight, Package, Star, TrendingUp } from 'lucide-react';
 import { Button } from '../../components/Button';
-import { useStore } from '../../lib/store';
+import { ModuleHeader, Stat, Card } from '../../components/app/ModulePage';
+import { scorecardFor, useStore } from '../../lib/store';
 import { navigate } from '../../lib/router';
 
-const SupplierDashboard: React.FC = () => {
+const Dashboard: React.FC = () => {
   const store = useStore();
   const me = store.identity.supplier.companyName;
   const openRfqs = store.rfqs.filter((r) => r.status === 'open' || r.status === 'quoted');
   const myQuotes = store.quotes.filter((q) => q.supplier === me);
   const wins = store.orders.filter((o) => o.supplier === me);
   const revenue = wins.reduce((a, o) => a + o.total, 0);
-  const winRate = myQuotes.length > 0 ? Math.round((wins.length / myQuotes.length) * 100) : 0;
+  const supplier = store.suppliers.find((s) => s.name === me);
+  const card = supplier ? scorecardFor(supplier, store) : null;
+  const activeOrders = wins.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled').length;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <div className="text-xs text-cyan-400 font-semibold uppercase tracking-widest mb-2">Supplier workspace</div>
-          <h1 className="text-3xl font-bold text-white">Lead &amp; Quote Pipeline</h1>
-          <p className="text-slate-400 text-sm mt-1">Welcome back, {store.identity.supplier.contactName} @ {me}.</p>
-        </div>
-        <Button variant="secondary" onClick={() => navigate('/app/s/inbox')}>
-          <Inbox size={16} className="mr-2" /> Inbound RFQs ({openRfqs.length})
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <ModuleHeader
+        icon={Factory}
+        iconBg="from-cyan-500/20 to-blue-500/20 border-cyan-500/30"
+        iconColor="text-cyan-300"
+        title="Sales Pipeline"
+        subtitle={`Welcome back, ${store.identity.supplier.contactName}. Live lead activity across the ProcureAI network.`}
+        actions={
+          <Button variant="secondary" onClick={() => navigate('/app/s/inbox')}>
+            <Inbox size={14} className="mr-2" /> Inbound RFQs ({openRfqs.length})
+          </Button>
+        }
+      />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Open RFQs', val: openRfqs.length, color: 'text-cyan-400', icon: Inbox },
-          { label: 'My Quotes', val: myQuotes.length, color: 'text-blue-400', icon: Target },
-          { label: 'Won Orders', val: wins.length, color: 'text-green-400', icon: CheckCircle2 },
-          { label: 'Revenue', val: `$${revenue.toFixed(0)}`, color: 'text-violet-400', icon: DollarSign },
-        ].map((s) => (
-          <div key={s.label} className="glass-panel border border-white/5 p-5 rounded-xl">
-            <div className="flex justify-between items-start mb-3">
-              <span className="text-xs text-slate-400 font-medium">{s.label}</span>
-              <s.icon size={14} className="text-slate-500" />
-            </div>
-            <div className={`text-2xl font-bold ${s.color}`}>{s.val}</div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Stat label="Open RFQs" value={openRfqs.length} color="text-cyan-400" icon={Inbox} />
+        <Stat label="My quotes" value={myQuotes.length} color="text-blue-400" icon={Target} />
+        <Stat label="Won orders" value={wins.length} color="text-emerald-400" icon={CheckCircle2} />
+        <Stat label="Revenue" value={`$${revenue.toFixed(0)}`} color="text-violet-400" icon={DollarSign} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 glass-panel border border-white/5 rounded-xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white">Latest Inbound RFQs</h2>
-            <button onClick={() => navigate('/app/s/inbox')} className="text-xs text-cyan-400 hover:text-cyan-300">View all</button>
-          </div>
-          <div className="divide-y divide-slate-800/60">
+        <Card className="lg:col-span-2" title="Latest inbound RFQs" actions={<button onClick={() => navigate('/app/s/inbox')} className="text-xs text-cyan-300 hover:text-cyan-200">View all</button>}>
+          <div className="divide-y divide-slate-800/60 -mx-5">
             {openRfqs.slice(0, 6).map((r) => {
               const mine = store.quotes.find((q) => q.rfqId === r.id && q.supplier === me);
               return (
-                <button key={r.id} onClick={() => navigate(`/app/s/inbox/${r.id}`)} className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 transition-colors text-left">
+                <button key={r.id} onClick={() => navigate(`/app/s/inbox/${r.id}`)}
+                  className="w-full px-5 py-3 flex items-center justify-between hover:bg-white/5 transition-colors text-left">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
-                      <Factory size={16} />
+                      <Package size={16} />
                     </div>
                     <div>
                       <div className="text-sm text-white font-medium">{r.part.name}</div>
@@ -75,32 +67,37 @@ const SupplierDashboard: React.FC = () => {
               );
             })}
             {openRfqs.length === 0 && (
-              <div className="px-5 py-12 text-center text-slate-500 text-sm">No open RFQs right now. New requests appear here in real time.</div>
+              <div className="px-5 py-10 text-center text-slate-500 text-sm">No open RFQs. Snap one from the buyer side to populate.</div>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="glass-panel border border-white/5 rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-white mb-4">Performance</h2>
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                <span>Win rate</span><span>{winRate}%</span>
-              </div>
-              <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-cyan-500 to-green-500" style={{ width: `${winRate}%` }}></div>
-              </div>
+        {card && (
+          <Card title="Your scorecard" actions={<button onClick={() => navigate('/app/s/scorecard')} className="text-xs text-cyan-300 hover:text-cyan-200">Details</button>}>
+            <div className="flex items-center space-x-1 mb-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} size={16} className={i <= Math.round(card.qualityScore) ? 'text-amber-400 fill-amber-400' : 'text-slate-700'} />
+              ))}
+              <span className="text-lg font-bold text-white ml-2">{card.qualityScore.toFixed(1)}</span>
             </div>
-            <div className="text-xs text-slate-400 space-y-2 pt-4 border-t border-slate-800">
-              <div className="flex items-center justify-between"><span>Quotes submitted</span><span className="text-white">{myQuotes.length}</span></div>
-              <div className="flex items-center justify-between"><span>Orders won</span><span className="text-white">{wins.length}</span></div>
-              <div className="flex items-center justify-between"><span>Revenue</span><span className="text-white font-mono">${revenue.toFixed(2)}</span></div>
+            <div className="space-y-2 pt-3 border-t border-slate-800 text-xs">
+              <Row label="Win rate" value={`${Math.round(card.winRate * 100)}%`} />
+              <Row label="On-time" value={`${Math.round(card.onTimeRate * 100)}%`} />
+              <Row label="Active orders" value={`${activeOrders}`} />
+              <Row label="Avg response" value={`${card.avgResponseMinutes.toFixed(1)}m`} icon={TrendingUp} />
             </div>
-          </div>
-        </div>
+          </Card>
+        )}
       </div>
     </div>
   );
 };
 
-export default SupplierDashboard;
+const Row: React.FC<{ label: string; value: string; icon?: React.ComponentType<{ size?: number; className?: string }> }> = ({ label, value }) => (
+  <div className="flex items-center justify-between">
+    <span className="text-slate-400">{label}</span>
+    <span className="text-white font-mono">{value}</span>
+  </div>
+);
+
+export default Dashboard;

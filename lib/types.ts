@@ -64,6 +64,25 @@ export interface Quote {
   auto?: boolean;
 }
 
+export type OrderStatus = 'pending' | 'confirmed' | 'in_production' | 'shipped' | 'delivered' | 'cancelled';
+
+export interface OrderLineItem {
+  sku: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface OrderEvent {
+  ts: number;
+  event: string;
+  actor: string;
+  detail?: string;
+}
+
+export type InvoiceStatus = 'pending' | 'invoiced' | 'paid';
+
 export interface Order {
   id: string;
   rfqId: string;
@@ -72,5 +91,41 @@ export interface Order {
   total: number;
   placedAt: number;
   eta: string;
-  status: 'in_production' | 'shipped' | 'delivered';
+  status: OrderStatus;
+  lineItems: OrderLineItem[];
+  timeline: OrderEvent[];
+  trackingNumber?: string;
+  carrier?: string;
+  invoiceStatus: InvoiceStatus;
+  terms: string;
+  buyer: string;
+  facility: string;
+}
+
+export interface Supplier {
+  id: string;
+  name: string;
+  tag: string;
+  categories: string[];
+  region: string;
+  verified: boolean;
+  certifications: string[];
+  joinedAt: number;
+  logoLetter: string;
+  color: string;
+}
+
+export interface SupplierScorecard {
+  supplier: Supplier;
+  quotesSubmitted: number;
+  ordersWon: number;
+  winRate: number;
+  revenue: number;
+  onTimeRate: number;
+  qualityScore: number;
+  avgLeadDays: number;
+  avgResponseMinutes: number;
+  priceCompetitivenessPct: number;
+  activeOrders: number;
+  lastActivityAt: number | null;
 }

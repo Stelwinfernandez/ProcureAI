@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Bell, ChevronDown, LogOut, Menu, X } from 'lucide-react';
+import { Bell, LogOut, Menu, Repeat, X, Infinity as InfinityIcon } from 'lucide-react';
 import { navigate } from '../../lib/router';
 import { actions, useStore } from '../../lib/store';
 
@@ -7,158 +7,161 @@ export interface NavItem {
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   path: string;
+  sublabel?: string;
+}
+
+export interface NavSection {
+  title?: string;
+  items: NavItem[];
 }
 
 interface ShellProps {
   role: 'manufacturer' | 'supplier';
   activePath: string;
-  nav: NavItem[];
+  sections: NavSection[];
   children: React.ReactNode;
 }
 
-const Logo = ({ className = '' }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="40" rx="12" fill="url(#shell_logo_gradient)" />
-    <path d="M20 11L29 16.1962V26.5885L20 31.7846L11 26.5885V16.1962L20 11Z" stroke="white" strokeWidth="2" strokeOpacity="0.5" />
-    <path d="M20 14V22M20 22L26 18M20 22L14 18M20 25.5V26.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="20" cy="27.5" r="1.5" fill="white" />
-    <defs>
-      <linearGradient id="shell_logo_gradient" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#2563EB" />
-        <stop offset="1" stopColor="#06B6D4" />
-      </linearGradient>
-    </defs>
-  </svg>
+const BrandMark: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <div className={`relative w-9 h-9 rounded-full flex items-center justify-center ${className}`}>
+    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 opacity-20 blur-md"></div>
+    <div className="relative w-9 h-9 rounded-full border-2 border-teal-400/60 flex items-center justify-center bg-slate-950">
+      <InfinityIcon size={18} className="text-teal-300" strokeWidth={2.2} />
+    </div>
+  </div>
 );
 
-export const Shell: React.FC<ShellProps> = ({ role, activePath, nav, children }) => {
+export const Shell: React.FC<ShellProps> = ({ role, activePath, sections, children }) => {
   const store = useStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const identity = role === 'manufacturer' ? store.identity.manufacturer : store.identity.supplier;
-  const roleLabel = role === 'manufacturer' ? 'Manufacturer' : 'Supplier';
-  const accent = role === 'manufacturer' ? 'blue' : 'cyan';
+  const roleLabel = role === 'manufacturer' ? 'BUYER' : 'SUPPLIER';
+  const osLabel = role === 'manufacturer' ? 'BUYER OS' : 'SUPPLIER OS';
+  const switchLabel = role === 'manufacturer' ? 'Switch to Supplier' : 'Switch to Buyer';
+  const switchPath = role === 'manufacturer' ? '/app/s' : '/app/m';
+  const accent = role === 'manufacturer' ? 'emerald' : 'cyan';
 
   const unreadCount =
     role === 'manufacturer'
       ? store.quotes.filter((q) => store.rfqs.find((r) => r.id === q.rfqId)?.status === 'quoted').length
       : store.rfqs.filter((r) => r.status === 'open').length;
 
-  return (
-    <div className="min-h-screen bg-[#020617] text-slate-100">
-      {/* Sidebar desktop */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 border-r border-slate-800 bg-[#0b1120] flex-col z-40">
-        <div className="h-16 border-b border-slate-800 flex items-center px-5 space-x-3">
-          <Logo className="w-8 h-8" />
-          <div>
-            <div className="font-bold text-white tracking-tight">Procure<span className="text-cyan-400">AI</span></div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest">{roleLabel}</div>
+  const SidebarContent = () => (
+    <>
+      <div className="h-20 border-b border-slate-800/80 flex items-center px-6 space-x-3 shrink-0">
+        <BrandMark />
+        <div>
+          <div className="font-bold text-white tracking-tight leading-none">
+            PROCURE <span className={accent === 'emerald' ? 'text-teal-300' : 'text-cyan-300'}>Ai</span>
           </div>
+          <div className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-1">{osLabel}</div>
         </div>
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {nav.map((item) => {
-            const active = activePath === item.path || activePath.startsWith(item.path + '/');
-            return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  active
-                    ? accent === 'blue'
-                      ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20'
-                      : 'bg-cyan-600/10 text-cyan-400 border border-cyan-500/20'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <item.icon size={16} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-        <div className="p-3 border-t border-slate-800 space-y-2">
-          <button
-            onClick={() => navigate(role === 'manufacturer' ? '/app/s/inbox' : '/app/m/snap')}
-            className="w-full text-left text-xs text-slate-500 hover:text-slate-300 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
-          >
-            Switch to {role === 'manufacturer' ? 'Supplier' : 'Manufacturer'} view &rarr;
-          </button>
-          <button
-            onClick={() => { actions.resetDemo(); navigate('/app'); }}
-            className="w-full flex items-center space-x-2 text-xs text-slate-500 hover:text-red-400 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
-          >
-            <LogOut size={12} />
-            <span>Reset demo &amp; sign out</span>
-          </button>
-        </div>
-      </aside>
+      </div>
 
-      {/* Mobile sidebar */}
-      {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-black/60" onClick={() => setMobileOpen(false)}></div>
-          <aside className="relative w-64 bg-[#0b1120] border-r border-slate-800 flex flex-col">
-            <div className="h-16 border-b border-slate-800 flex items-center justify-between px-5">
-              <div className="flex items-center space-x-3">
-                <Logo className="w-8 h-8" />
-                <div className="font-bold text-white tracking-tight">Procure<span className="text-cyan-400">AI</span></div>
-              </div>
-              <button onClick={() => setMobileOpen(false)} className="text-slate-400 p-2"><X size={18} /></button>
-            </div>
-            <nav className="flex-1 p-3 space-y-1">
-              {nav.map((item) => {
-                const active = activePath === item.path;
+      <nav className="flex-1 py-4 overflow-y-auto">
+        {sections.map((section, si) => (
+          <div key={si} className={si > 0 ? 'mt-4' : ''}>
+            {section.title && (
+              <div className="px-6 pb-2 text-[10px] font-semibold text-slate-600 uppercase tracking-[0.2em]">{section.title}</div>
+            )}
+            <div className="px-3 space-y-1">
+              {section.items.map((item) => {
+                const active = activePath === item.path || activePath.startsWith(item.path + '/');
                 return (
                   <button
                     key={item.path}
                     onClick={() => { navigate(item.path); setMobileOpen(false); }}
-                    className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      active ? 'bg-blue-600/10 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    className={`group w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
+                      active
+                        ? 'text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <item.icon size={16} />
-                    <span>{item.label}</span>
+                    {active && (
+                      <div className={`absolute inset-0 rounded-xl bg-gradient-to-r ${accent === 'emerald' ? 'from-emerald-500/20 via-teal-500/20 to-cyan-500/10' : 'from-cyan-500/20 via-blue-500/20 to-violet-500/10'} border ${accent === 'emerald' ? 'border-teal-500/30' : 'border-cyan-500/30'}`}></div>
+                    )}
+                    <item.icon size={16} className={`relative z-10 ${active ? (accent === 'emerald' ? 'text-teal-300' : 'text-cyan-300') : ''}`} />
+                    <span className="relative z-10 truncate">{item.label}</span>
+                    {item.sublabel && (
+                      <span className="relative z-10 ml-auto text-[9px] text-slate-500 uppercase tracking-widest">{item.sublabel}</span>
+                    )}
                   </button>
                 );
               })}
-            </nav>
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div className="p-3 border-t border-slate-800/80 space-y-2 shrink-0">
+        <button
+          onClick={() => { navigate(switchPath); setMobileOpen(false); }}
+          className={`w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            accent === 'emerald'
+              ? 'bg-gradient-to-r from-teal-500/15 to-emerald-500/15 border border-teal-500/40 text-teal-200 hover:from-teal-500/25 hover:to-emerald-500/25'
+              : 'bg-gradient-to-r from-cyan-500/15 to-blue-500/15 border border-cyan-500/40 text-cyan-200 hover:from-cyan-500/25 hover:to-blue-500/25'
+          }`}
+        >
+          <Repeat size={14} />
+          <span>{switchLabel}</span>
+        </button>
+        <button
+          onClick={() => { actions.resetDemo(); navigate('/app'); }}
+          className="w-full flex items-center space-x-2 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+        >
+          <LogOut size={14} />
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#060918] text-slate-100">
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 border-r border-slate-800/80 bg-[#0a0e1f] flex-col z-40">
+        <SidebarContent />
+      </aside>
+
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black/70" onClick={() => setMobileOpen(false)}></div>
+          <aside className="relative w-72 bg-[#0a0e1f] border-r border-slate-800 flex flex-col">
+            <SidebarContent />
+            <button onClick={() => setMobileOpen(false)} className="absolute top-6 right-4 text-slate-400 p-2"><X size={18} /></button>
           </aside>
         </div>
       )}
 
-      {/* Main area */}
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 h-16 border-b border-slate-800 bg-[#0b1120]/80 backdrop-blur flex items-center px-4 lg:px-8">
+        <header className="sticky top-0 z-30 h-16 border-b border-slate-800/80 bg-[#0a0e1f]/90 backdrop-blur flex items-center px-4 lg:px-8">
           <button onClick={() => setMobileOpen(true)} className="lg:hidden mr-3 text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5">
             <Menu size={18} />
           </button>
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center space-x-2 text-xs text-slate-500 hover:text-slate-300 transition-colors"
-          >
-            <ArrowLeft size={12} />
-            <span className="hidden sm:inline">Back to site</span>
-          </button>
-          <div className="ml-auto flex items-center space-x-3">
-            <div className="relative">
-              <Bell size={16} className="text-slate-400" />
+          <div className="text-xs text-slate-500 uppercase tracking-[0.2em] hidden md:block">
+            {role === 'manufacturer' ? 'Procurement Operations' : 'Sales Operations'}
+          </div>
+          <div className="ml-auto flex items-center space-x-4">
+            <button className="relative text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5">
+              <Bell size={16} />
               {unreadCount > 0 && (
-                <span className={`absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${accent === 'blue' ? 'bg-blue-500' : 'bg-cyan-500'} text-white`}>
+                <span className={`absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${accent === 'emerald' ? 'bg-teal-500' : 'bg-cyan-500'} text-slate-950`}>
                   {unreadCount}
                 </span>
               )}
-            </div>
-            <div className="flex items-center space-x-2 pl-3 border-l border-slate-800">
-              <div className={`w-8 h-8 rounded-full bg-gradient-to-tr ${accent === 'blue' ? 'from-blue-500 to-cyan-500' : 'from-cyan-500 to-blue-500'}`}></div>
-              <div className="hidden sm:block">
-                <div className="text-xs text-white font-medium leading-tight">{identity.companyName}</div>
-                <div className="text-[10px] text-slate-500 leading-tight">{identity.contactName}</div>
+            </button>
+            <div className="flex items-center space-x-3 pl-4 border-l border-slate-800">
+              <div className="hidden sm:block text-right">
+                <div className="text-sm text-white font-semibold leading-tight">{identity.contactName}</div>
+                <div className={`text-[10px] font-bold tracking-[0.2em] leading-tight ${accent === 'emerald' ? 'text-teal-400' : 'text-cyan-400'}`}>{roleLabel}</div>
               </div>
-              <ChevronDown size={12} className="text-slate-500 hidden sm:block" />
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-white ${accent === 'emerald' ? 'bg-gradient-to-tr from-teal-500 to-emerald-600' : 'bg-gradient-to-tr from-cyan-500 to-blue-600'}`}>
+                {roleLabel[0]}
+              </div>
             </div>
           </div>
         </header>
 
-        <main className="p-4 lg:p-8 max-w-7xl mx-auto">{children}</main>
+        <main className="p-4 lg:p-8 max-w-[1400px] mx-auto">{children}</main>
       </div>
     </div>
   );

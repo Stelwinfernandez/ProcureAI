@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Camera, Upload, Sparkles, ScanLine, AlertTriangle, CheckCircle2, Loader2, X, Send } from 'lucide-react';
+import { Camera, Upload, Sparkles, ScanLine, AlertTriangle, CheckCircle2, Loader2, X, Send, Zap, Info } from 'lucide-react';
 import { Button } from '../../components/Button';
-import { identifyPart } from '../../lib/ai';
+import { identifyPart, type AiStatus } from '../../lib/ai';
 import { actions } from '../../lib/store';
 import { scheduleAutoQuotes } from '../../lib/mock';
 import { navigate } from '../../lib/router';
@@ -14,6 +14,8 @@ const SnapSource: React.FC = () => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>('idle');
   const [part, setPart] = useState<IdentifiedPart | null>(null);
+  const [aiStatus, setAiStatus] = useState<AiStatus | null>(null);
+  const [aiMessage, setAiMessage] = useState<string | undefined>();
   const [hint, setHint] = useState('');
   const [quantity, setQuantity] = useState(10);
   const [neededBy, setNeededBy] = useState(() => {
@@ -48,7 +50,9 @@ const SnapSource: React.FC = () => {
     setError(null);
     try {
       const result = await identifyPart(imageDataUrl, hint);
-      setPart(result);
+      setPart(result.part);
+      setAiStatus(result.status);
+      setAiMessage(result.message);
       setPhase('review');
     } catch (err) {
       console.error(err);
@@ -63,6 +67,8 @@ const SnapSource: React.FC = () => {
     setHint('');
     setPhase('idle');
     setError(null);
+    setAiStatus(null);
+    setAiMessage(undefined);
   };
 
   const broadcast = () => {
@@ -81,11 +87,41 @@ const SnapSource: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="text-xs text-blue-400 font-semibold uppercase tracking-widest mb-2">Snap &amp; Source</div>
-        <h1 className="text-3xl font-bold text-white">Part to quote in minutes</h1>
-        <p className="text-slate-400 text-sm mt-1">Drop a photo of any MRO part. Our vision model identifies it and we&apos;ll fire an instant RFQ to the best suppliers.</p>
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+        <div>
+          <div className="text-xs text-blue-400 font-semibold uppercase tracking-widest mb-2">Snap &amp; Source</div>
+          <h1 className="text-3xl font-bold text-white">Part to quote in minutes</h1>
+          <p className="text-slate-400 text-sm mt-1">Drop a photo of any MRO part. Our vision model identifies it and we&apos;ll fire an instant RFQ to the best suppliers.</p>
+        </div>
+        {aiStatus && (
+          <div className={`inline-flex items-center space-x-2 px-3 py-2 rounded-lg border text-xs font-medium ${
+            aiStatus === 'live' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' :
+            aiStatus === 'error' ? 'border-red-500/30 bg-red-500/10 text-red-300' :
+            'border-amber-500/30 bg-amber-500/10 text-amber-300'
+          }`}>
+            {aiStatus === 'live' ? <Zap size={12} /> : aiStatus === 'error' ? <AlertTriangle size={12} /> : <Info size={12} />}
+            <span>
+              {aiStatus === 'live' ? 'Live AI (Gemini 2.5 Flash)' :
+               aiStatus === 'error' ? 'Gemini error &middot; using fallback' :
+               'Demo mode &middot; deterministic fallback'}
+            </span>
+          </div>
+        )}
       </div>
+
+      {aiStatus && aiStatus !== 'live' && aiMessage && (
+        <div className="flex items-start space-x-2 text-xs bg-slate-900/60 border border-slate-800 rounded-lg p-3">
+          <Info size={14} className="text-slate-400 shrink-0 mt-0.5" />
+          <div className="text-slate-300 leading-relaxed">
+            {aiMessage}
+            {aiStatus === 'demo' && (
+              <div className="mt-1 text-slate-500">
+                Create <span className="font-mono text-slate-300">.env.local</span> with <span className="font-mono text-slate-300">GEMINI_API_KEY=your_key</span>, restart the dev server, and reload. The fallback is deterministic &mdash; the same photo always maps to the same part.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Left: capture */}
